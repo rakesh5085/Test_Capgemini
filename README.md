@@ -2,8 +2,8 @@
 
 Done: 
 - Implement authorization with Github. The search must be available after sign in. Unauthorized user can see previous search results.
-- The UI/screen during the search must not be blocked;
-- Get 30 repositories per one request (first 15 of the first thread and other 15 of the second thread) - and then merge the repositories.
+- MVP architecture applied
+- The UI/screen during the search must not be blocked
 - Allow to view previous results without an internet connection and mark them as viewed after opening the repository.
 - Allow to store previous search results (CoreData).
 - Upon clicking on the repository name a browser will open leading to the main page. It has to open as a modal window (not for full the screen). You have to be able to drag down this modal window to close it.
