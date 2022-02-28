@@ -5,6 +5,8 @@
 import UIKit
 import CoreData
 
+//TODO: a presenter needs to be created corresponding to this
+
 class LastSearchViewController: UIViewController ,UITableViewDelegate,UITableViewDataSource, UIViewControllerTransitioningDelegate{
     var arrListRepo = [[String: Any]]();
     @IBOutlet weak var tblView: UITableView!
@@ -57,6 +59,7 @@ class LastSearchViewController: UIViewController ,UITableViewDelegate,UITableVie
         selectedIndex = indexPath.row
     }
     
+    //TODO: to be moved to presenter
     func fetchRecord() {
         //1
           guard let appDelegate =

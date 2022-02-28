@@ -132,7 +132,7 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
         presenter.getRepositoryList(searchText: searchBar.text ?? "")
     }
     
-    //TODO: to be moved to presenter 
+    //TODO: to be moved to presenter
     func someEntityExists(id: Int) -> Bool {
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: Constants.Keys.repoData)
         fetchRequest.predicate = NSPredicate(format: "id = %d", id)
@@ -150,6 +150,7 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
         return results.count > 0
     }
     
+    //TODO: to be moved to presenter
     func saveData() {
         for data in self.arrRepo {
             if someEntityExists(id: data.id ?? 0) == false{
