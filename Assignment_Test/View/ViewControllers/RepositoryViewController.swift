@@ -138,19 +138,20 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: Constants.Keys.repoData)
         fetchRequest.predicate = NSPredicate(format: "id = %d", id)
         var results: [NSManagedObject] = []
+        var managedObjectContext: NSManagedObjectContext?
         DispatchQueue.main.async {
-
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            
-            let managedObjectContext = appDelegate.persistentContainer.viewContext
-            do {
-                results = try managedObjectContext.fetch(fetchRequest)
-            }
-            catch {
-                print("error executing fetch request: \(error)")
-            }
-            
+            managedObjectContext = appDelegate.persistentContainer.viewContext
         }
+        do {
+            if let context = managedObjectContext {
+                results = try context.fetch(fetchRequest)
+            }
+        }
+        catch {
+            print("error executing fetch request: \(error)")
+        }
+        
         return results.count > 0
     }
     
@@ -158,21 +159,28 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
     func saveData() {
         for data in self.arrRepo {
             if doesEntityExist(id: data.id ?? 0) == false{
-                guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-                    return
+                
+                var managedContext: NSManagedObjectContext?
+                DispatchQueue.main.async {
+                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                    managedContext = appDelegate.persistentContainer.viewContext
                 }
-                let managedContext = appDelegate.persistentContainer.viewContext
-                let entity = NSEntityDescription.entity(forEntityName: Constants.Keys.repoData, in: managedContext)!
-                let repo = NSManagedObject(entity: entity, insertInto: managedContext)
-                repo.setValue(data.name, forKeyPath: Constants.Keys.name)
-                repo.setValue(false, forKeyPath: Constants.Keys.readStatus)
-                repo.setValue(data.id, forKeyPath: Constants.Keys.id)
-                repo.setValue(data.url, forKeyPath: Constants.Keys.url)
-                do {
-                    try managedContext.save()
-                } catch let error as NSError {
-                    print("Could not save. \(error), \(error.userInfo)")
+                
+                if let managedContext = managedContext {
+                    let entity = NSEntityDescription.entity(forEntityName: Constants.Keys.repoData, in: managedContext)!
+                    let repo = NSManagedObject(entity: entity, insertInto: managedContext)
+                    repo.setValue(data.name, forKeyPath: Constants.Keys.name)
+                    repo.setValue(false, forKeyPath: Constants.Keys.readStatus)
+                    repo.setValue(data.id, forKeyPath: Constants.Keys.id)
+                    repo.setValue(data.url, forKeyPath: Constants.Keys.url)
+                    do {
+                        
+                        try managedContext.save()
+                    } catch let error as NSError {
+                        print("Could not save. \(error), \(error.userInfo)")
+                    }
                 }
+               
             }
         }
     }
@@ -187,6 +195,7 @@ extension RepositoryViewController: WKNavigationDelegate {
     }
     
     func RequestForCallbackURL(request: URLRequest) {
+        //TODO: needed optimization here in if lets ...
         let requestURLString = (request.url?.absoluteString)! as String
         if requestURLString.hasPrefix(Constants.GithubConstants.REDIRECT_URI) {
             if requestURLString.contains("code=") {
@@ -225,7 +234,9 @@ extension RepositoryViewController: RepositoryView {
     }
     
     func setEmptyRepositoryList() {
-        tblView.reloadData()
+        DispatchQueue.main.async {
+            self.tblView.reloadData()
+        }
     }
 }
 
