@@ -133,19 +133,26 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
     }
     
     //TODO: to be moved to presenter
-    func someEntityExists(id: Int) -> Bool {
+    func doesEntityExist(id: Int) -> Bool {
+        
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: Constants.Keys.repoData)
         fetchRequest.predicate = NSPredicate(format: "id = %d", id)
         var results: [NSManagedObject] = []
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return false
+        DispatchQueue.main.async {
         }
-        let managedObjectContext = appDelegate.persistentContainer.viewContext
-        do {
-            results = try managedObjectContext.fetch(fetchRequest)
-        }
-        catch {
-            print("error executing fetch request: \(error)")
+        
+        DispatchQueue.main.async {
+
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            
+            let managedObjectContext = appDelegate.persistentContainer.viewContext
+            do {
+                results = try managedObjectContext.fetch(fetchRequest)
+            }
+            catch {
+                print("error executing fetch request: \(error)")
+            }
+            
         }
         return results.count > 0
     }
@@ -153,7 +160,7 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
     //TODO: to be moved to presenter
     func saveData() {
         for data in self.arrRepo {
-            if someEntityExists(id: data.id ?? 0) == false{
+            if doesEntityExist(id: data.id ?? 0) == false{
                 guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
                     return
                 }
