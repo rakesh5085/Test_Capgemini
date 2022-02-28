@@ -19,14 +19,14 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
     var repoData: [NSManagedObject] = []
     var selectedIndex = 0;
     
-    var arrRepo = [Repository]()
+    var arrayRepo = [Repository]()
     
     let presenter = RepositoryPresenter(githubService: GithubService())
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destinationViewController = segue.destination as? ModalViewController {
             destinationViewController.transitioningDelegate = self
-            destinationViewController.strURL = self.arrRepo[selectedIndex].url ?? ""
+            destinationViewController.strURL = self.arrayRepo[selectedIndex].url ?? ""
             destinationViewController.interactor = interactor
         }
     }
@@ -108,14 +108,14 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.arrRepo.count
+        return self.arrayRepo.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell =
             tableView.dequeueReusableCell(withIdentifier: Constants.Identifiers.repoTableCell, for: indexPath) as! TableViewCustomCell
-        cell.lblTItleName?.text = self.arrRepo[indexPath.row].name
-        cell.lblSubName?.text = String(self.arrRepo[indexPath.row].id ?? 0)
+        cell.lblTItleName?.text = self.arrayRepo[indexPath.row].name
+        cell.lblSubName?.text = String(self.arrayRepo[indexPath.row].id ?? 0)
         cell.selectionStyle = .none
         return cell
     }
@@ -157,7 +157,7 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
     
     //TODO: to be moved to presenter
     func saveData() {
-        for data in self.arrRepo {
+        for data in self.arrayRepo {
             if doesEntityExist(id: data.id ?? 0) == false{
                 
                 var managedContext: NSManagedObjectContext?
@@ -166,16 +166,15 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
                     managedContext = appDelegate.persistentContainer.viewContext
                 }
                 
-                if let managedContext = managedContext {
-                    let entity = NSEntityDescription.entity(forEntityName: Constants.Keys.repoData, in: managedContext)!
+                if let _context = managedContext {
+                    let entity = NSEntityDescription.entity(forEntityName: Constants.Keys.repoData, in: _context)!
                     let repo = NSManagedObject(entity: entity, insertInto: managedContext)
                     repo.setValue(data.name, forKeyPath: Constants.Keys.name)
                     repo.setValue(false, forKeyPath: Constants.Keys.readStatus)
                     repo.setValue(data.id, forKeyPath: Constants.Keys.id)
                     repo.setValue(data.url, forKeyPath: Constants.Keys.url)
                     do {
-                        
-                        try managedContext.save()
+                        try _context.save()
                     } catch let error as NSError {
                         print("Could not save. \(error), \(error.userInfo)")
                     }
@@ -225,8 +224,8 @@ extension RepositoryViewController: RepositoryView {
     }
     
     func setRepositoryList(repositoryList: [Repository]) {
-        self.arrRepo.removeAll()
-        self.arrRepo = repositoryList
+        self.arrayRepo.removeAll()
+        self.arrayRepo = repositoryList
         DispatchQueue.main.async {
             self.tblView.reloadData()
         }

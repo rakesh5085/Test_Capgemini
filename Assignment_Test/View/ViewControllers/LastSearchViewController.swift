@@ -90,7 +90,6 @@ class LastSearchViewController: UIViewController ,UITableViewDelegate,UITableVie
                 print("Data :", data.value(forKey: "name") as! String)
             }
             self.tblView.reloadData()
-//            print("repodata count ", repoData[0].name);
           } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
           }
