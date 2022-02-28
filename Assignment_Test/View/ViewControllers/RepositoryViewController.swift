@@ -139,9 +139,6 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
         fetchRequest.predicate = NSPredicate(format: "id = %d", id)
         var results: [NSManagedObject] = []
         DispatchQueue.main.async {
-        }
-        
-        DispatchQueue.main.async {
 
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             
