@@ -1,44 +1,64 @@
-//
 //  ViewController.swift
-//
+//  RepositoryApp
 
 import UIKit
 import WebKit
 import CoreData
 
-
+// RepositoryViewController is a subclass of UIViewController and conforms to UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerTransitioningDelegate protocols.
 class RepositoryViewController: UIViewController , UITableViewDelegate,UITableViewDataSource ,UISearchBarDelegate, UIViewControllerTransitioningDelegate {
+    
+    // Outlet for the Sign In button
     @IBOutlet weak var btnSignIn: UIButton!
+    // WebView for displaying GitHub webpages
     var webView = WKWebView()
+    // Stores the GitHub user's username
     var strUserName = ""
+    // Stores the list of repositories fetched from GitHub API
     var arrListRepo = [[String: Any]]();
+    // Outlet for the tableView
     @IBOutlet weak var tblView: UITableView!
+    // Outlet for the searchBar
     @IBOutlet weak var searchBar: UISearchBar!
+    // Interactor object for handling network requests
     let interactor = Interactor()
+    // Stores the login status of the user
     var strLoginStatus = "0";
+    // Stores the list of CoreData objects for repositories
     var repoData: [NSManagedObject] = []
+    // Stores the index of the selected row in the tableView
     var selectedIndex = 0;
     
+    // Array of Repository objects
     var arrayRepo = [Repository]()
     
+    // Presenter object for handling repository related operations
     let presenter = RepositoryPresenter(githubService: GithubService())
     
+    // prepareForSegue method is called before a segue is performed. It is used to pass data to the destination view controller.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destinationViewController = segue.destination as? ModalViewController {
+            // Setting the transitioningDelegate property of the destination view controller to self
             destinationViewController.transitioningDelegate = self
+            // Passing the URL of the selected repository to the destination view controller
             destinationViewController.strURL = self.arrayRepo[selectedIndex].url ?? ""
+            // Passing the interactor object to the destination view controller
             destinationViewController.interactor = interactor
         }
     }
     
+    // viewDidLoad method is called after the view controller has loaded its view hierarchy into memory.
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Initializing the presenter object and attaching the view to it
         presenter.attachView(view: self)
+        // Checking if the user's login status is saved in UserDefaults
         if (UserDefaults.standard.value(forKey: Constants.Keys.loginStatus) != nil){
             strLoginStatus = UserDefaults.standard.value(forKey: Constants.Keys.loginStatus) as! String;
         }else{
             UserDefaults.standard.setValue("0", forKey: Constants.Keys.loginStatus);
         }
+        // Setting the title of the Sign In button based on the user's login status
         if strLoginStatus == "0" {
             btnSignIn.setTitle(Constants.Strings.login, for: .normal);
             searchBar.isUserInteractionEnabled = false
@@ -48,27 +68,35 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
         }
     }
     
+    // viewWillAppear method is called every time the view controller is about to appear on the screen.
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.navigationBar.isHidden = true
     }
     
+    // btnTappedSignIn method is called when the Sign In button is tapped.
     @IBAction func btnTappedSignIn(_ sender: UIButton) {
         if strLoginStatus == "0" {
+            // Calling the githubAuthVC method to authenticate the user
             githubAuthVC()
         }else{
+            // Setting the title of the Sign In button to "Login" and disabling the searchBar
             btnSignIn.setTitle(Constants.Strings.login, for: .normal);
             searchBar.isUserInteractionEnabled = false
+            // Setting the login status to "0" and saving it in UserDefaults
             strLoginStatus = "0";
             UserDefaults.standard.setValue("0", forKey: Constants.Keys.loginStatus);
         }
     }
     
+    // githubAuthVC method is used to authenticate the user using OAuth 2.0 authorization code flow.
     func githubAuthVC() {
+        // Creating a new view controller and adding a WKWebView to it
         let githubVC = UIViewController()
         let uuid = UUID().uuidString
         let webView = WKWebView()
         webView.navigationDelegate = self
         githubVC.view.addSubview(webView)
+        // Setting up constraints for the webView
         webView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             webView.topAnchor.constraint(equalTo: githubVC.view.topAnchor),
@@ -76,169 +104,10 @@ class RepositoryViewController: UIViewController , UITableViewDelegate,UITableVi
             webView.bottomAnchor.constraint(equalTo: githubVC.view.bottomAnchor),
             webView.trailingAnchor.constraint(equalTo: githubVC.view.trailingAnchor)
         ])
-        
+        // Constructing the authorization URL
         let authURLFull = Constants.GithubConstants.AUTHBASEURL + "" + Constants.GithubConstants.CLIENT_ID + "&scope=" + Constants.GithubConstants.SCOPE + "&redirect_uri=" + Constants.GithubConstants.REDIRECT_URI + "&state=" + uuid
-        
+        // Creating a URL request for the authorization URL
         let urlRequest = URLRequest(url: URL(string: authURLFull)!)
+        // Loading the URL request in the webView
         webView.load(urlRequest)
-        
-        let navController = UINavigationController(rootViewController: githubVC)
-        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelAction))
-        githubVC.navigationItem.leftBarButtonItem = cancelButton
-        let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(self.refreshAction))
-        githubVC.navigationItem.rightBarButtonItem = refreshButton
-        let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        navController.navigationBar.titleTextAttributes = textAttributes
-        githubVC.navigationItem.title = Constants.Strings.githubTitle
-        navController.navigationBar.isTranslucent = false
-        navController.navigationBar.tintColor = UIColor.white
-        navController.navigationBar.barTintColor = UIColor.black
-        navController.modalPresentationStyle = UIModalPresentationStyle.overFullScreen
-        navController.modalTransitionStyle = .coverVertical
-        
-        self.present(navController, animated: true, completion: nil)
-    }
-    
-    @objc func cancelAction() {
-        self.dismiss(animated: true, completion: nil)
-    }
-    
-    @objc func refreshAction() {
-        self.webView.reload()
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.arrayRepo.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell =
-            tableView.dequeueReusableCell(withIdentifier: Constants.Identifiers.repoTableCell, for: indexPath) as! TableViewCustomCell
-        cell.lblTItleName?.text = self.arrayRepo[indexPath.row].name
-        cell.lblSubName?.text = String(self.arrayRepo[indexPath.row].id ?? 0)
-        cell.selectionStyle = .none
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedIndex = indexPath.row
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        presenter.getRepositoryList(searchText: searchBar.text ?? "")
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        presenter.getRepositoryList(searchText: searchBar.text ?? "")
-    }
-    
-    //TODO: to be moved to presenter
-    func doesEntityExist(id: Int) -> Bool {
-        
-        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: Constants.Keys.repoData)
-        fetchRequest.predicate = NSPredicate(format: "id = %d", id)
-        var results: [NSManagedObject] = []
-        var managedObjectContext: NSManagedObjectContext?
-        DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            managedObjectContext = appDelegate.persistentContainer.viewContext
-        }
-        do {
-            if let context = managedObjectContext {
-                results = try context.fetch(fetchRequest)
-            }
-        }
-        catch {
-            print("error executing fetch request: \(error)")
-        }
-        
-        return results.count > 0
-    }
-    
-    //TODO: to be moved to presenter
-    func saveData() {
-        for data in self.arrayRepo {
-            if doesEntityExist(id: data.id ?? 0) == false{
-                
-                var managedContext: NSManagedObjectContext?
-                DispatchQueue.main.async {
-                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                    managedContext = appDelegate.persistentContainer.viewContext
-                }
-                
-                if let _context = managedContext {
-                    let entity = NSEntityDescription.entity(forEntityName: Constants.Keys.repoData, in: _context)!
-                    let repo = NSManagedObject(entity: entity, insertInto: managedContext)
-                    repo.setValue(data.name, forKeyPath: Constants.Keys.name)
-                    repo.setValue(false, forKeyPath: Constants.Keys.readStatus)
-                    repo.setValue(data.id, forKeyPath: Constants.Keys.id)
-                    repo.setValue(data.url, forKeyPath: Constants.Keys.url)
-                    do {
-                        try _context.save()
-                    } catch let error as NSError {
-                        print("Could not save. \(error), \(error.userInfo)")
-                    }
-                }
-               
-            }
-        }
-    }
-    
-}
-
-
-extension RepositoryViewController: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        self.RequestForCallbackURL(request: navigationAction.request)
-        decisionHandler(.allow)
-    }
-    
-    func RequestForCallbackURL(request: URLRequest) {
-        //TODO: needed optimization here in if lets ...
-        let requestURLString = (request.url?.absoluteString)! as String
-        if requestURLString.hasPrefix(Constants.GithubConstants.REDIRECT_URI) {
-            if requestURLString.contains("code=") {
-                if let range = requestURLString.range(of: "=") {
-                    let githubCode = requestURLString[range.upperBound...]
-                    if let range = githubCode.range(of: "&state=") {
-                        let githubCodeFinal = githubCode[..<range.lowerBound]
-                        self.presenter.getUserProfile(authCode: String(githubCodeFinal))
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                }
-            }
-        }
-    }
-}
-
-extension RepositoryViewController: RepositoryView {
-
-    func updateView(displayName: String) {
-        self.strUserName = displayName
-        DispatchQueue.main.async {
-            self.btnSignIn.setTitle(Constants.Strings.logOut, for: .normal);
-            UserDefaults.standard.setValue("1", forKey: Constants.Keys.loginStatus);
-            self.searchBar.isUserInteractionEnabled = true
-            self.strLoginStatus = "1";
-        }
-    }
-    
-    func setRepositoryList(repositoryList: [Repository]) {
-        self.arrayRepo.removeAll()
-        self.arrayRepo = repositoryList
-        DispatchQueue.main.async {
-            self.tblView.reloadData()
-        }
-        self.saveData()
-    }
-    
-    func setEmptyRepositoryList() {
-        DispatchQueue.main.async {
-            self.tblView.reloadData()
-        }
-    }
-}
-
-
-
-
+        // Creating a navigation controller with the githubVC as the
