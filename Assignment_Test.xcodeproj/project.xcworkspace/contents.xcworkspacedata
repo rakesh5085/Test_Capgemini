@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!---
+This is the root element of the Workspace document, which contains a single FileRef element.
+--->
 <Workspace
-   version = "1.0">
+   !-- The version attribute specifies the version of the Workspace document format.
+   version = "1.0" --->
+   <!---
+   The FileRef element specifies the location of a file or directory being referenced.
+   In this case, the location is set to "self:", indicating that the referenced file or directory
+   is the same as the current file or directory.
+   --->
    <FileRef
       location = "self:">
    </FileRef>
