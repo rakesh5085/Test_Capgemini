@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bucket
-   uuid = "EE9026C8-0233-4569-BCC7-F1D9897E0511"
-   type = "1"
-   version = "2.0">
-   <Breakpoints>
+   uuid="EE9026C8-0233-4569-BCC7-F1D9897E0511" <!-- Unique identifier for the bucket -->
+   type="1"
+   version="2.0"> <!-- Version of the bucket schema -->
+   <Breakpoints> <!-- Container for breakpoint-related information -->
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
+         BreakpointExtensionID="Xcode.Breakpoint.ExceptionBreakpoint"> <!-- Identifier for the type of breakpoint -->
          <BreakpointContent
-            uuid = "493AA14F-7CE7-4E16-8093-5DDF7DD060B1"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            breakpointStackSelectionBehavior = "1"
-            scope = "1"
-            stopOnStyle = "0">
+            uuid="493AA14F-7CE7-4E16-8093-5DDF7DD060B1" <!-- Unique identifier for the breakpoint content -->
+            shouldBeEnabled="Yes" <!-- Whether the breakpoint should be enabled or not -->
+            ignoreCount="0" <!-- Number of times to ignore the breakpoint before stopping execution -->
+            continueAfterRunningActions="No" <!-- Whether to continue execution after running actions or not -->
+            breakpointStackSelectionBehavior="1" <!-- Behavior for selecting the stack frame when the breakpoint is hit -->
+            scope="1" <!-- Scope of the breakpoint (e.g. global, thread, etc.) -->
+            stopOnStyle="0"> <!-- Style of the breakpoint (e.g. all, thread, etc.) -->
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
