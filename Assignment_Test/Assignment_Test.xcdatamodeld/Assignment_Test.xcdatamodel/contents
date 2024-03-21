@@ -1,12 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20D64" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="RepoData" representedClassName="RepoData" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="readStatus" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="url" optional="YES" attributeType="String"/>
-    </entity>
-    <elements>
-        <element name="RepoData" positionX="-63" positionY="-18" width="128" height="89"/>
-    </elements>
-</model>
+<model type="com.apple.IDECoreDataModeler.DataModel" <!-- The model type for this file -->
+        documentVersion="1.0" <!-- The version of the document -->
+        lastSavedToolsVersion="18154" <!-- The version of the tools used to save the file -->
+        systemVersion="20D64" <!-- The system version when the file was last saved -->
+        minimumToolsVersion="Automatic" <!-- The minimum version of tools required to open the file -->
+        sourceLanguage="Swift" <!-- The programming language used for the code generation -->
+        userDefinedModelVersionIdentifier=""> <!-- A custom identifier for the model version -->
+
+    <entity name="RepoData" <!-- The name of the entity -->
+            representedClassName="RepoData" <!-- The class name representing the entity -->
+            syncable="YES" <!-- Indicates if the entity is syncable -->
+            codeGenerationType="class"> <!-- The code generation type for the entity -->
+
+        <attribute name="id" <!-- The attribute name -->
+                   optional="YES" <!-- Indicates if the attribute is optional -->
+                   attributeType="Integer 16" <!-- The attribute type -->
+                   defaultValueString="0" <!-- The default value for the attribute -->
+                   usesScalarValueType="YES"/> <!-- Indicates if the attribute uses a scalar value type -->
+
+        <attribute name="name" <!-- The attribute name -->
+                   optional="YES" <!-- Indicates if the attribute is optional -->
+                   attributeType="String"/> <!-- The attribute type -->
+
+        <attribute name="readStatus" <!-- The attribute name -->
+                   optional="YES" <!-- Indicates if the attribute is optional -->
+                   attributeType="Boolean" <!-- The attribute type -->
+                   usesScalarValueType="YES"/> <!-- Indicates if the attribute uses a scalar value type -->
+
+        <attribute name="url" <!-- The attribute name -->
+                   optional="YES" <!-- Indicates if the attribute is optional -->
+                   attributeType="String"/> <!-- The
